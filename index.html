@@ -51,9 +51,9 @@ button { font: inherit; color: inherit; }
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); background: var(--bg); z-index: 20; }
 .topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: saturate(1.4) blur(14px); -webkit-backdrop-filter: saturate(1.4) blur(14px); border-bottom: 1px solid transparent; }
 .topbar.scrolled { border-bottom-color: var(--line); }
-.topbar-in { max-width: 680px; margin: 0 auto; padding-block: 12px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.topbar-in { max-width: 680px; margin: 0 auto; padding-block: 12px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px; }
 .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
-.logo { width: clamp(36px, 11vw, 44px); height: clamp(36px, 11vw, 44px); flex: none; display: block; }
+.logo { width: clamp(34px, 10vw, 44px); height: clamp(34px, 10vw, 44px); flex: none; display: block; }
 .wordmark { display: grid; min-width: 0; }
 .wordmark small { font-size: 23px; color: var(--ink-2); font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; white-space: nowrap; }
 .brand h1 { margin: 0; font-size: 26px; font-weight: 900; letter-spacing: -0.045em; line-height: 1.15; display: flex; align-items: baseline; gap: 5px; white-space: nowrap; }
@@ -61,7 +61,10 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .brand h1 .home { color: var(--ink); }
 .brand h1 .dday-mark { color: var(--accent); display: inline-flex; align-items: baseline; }
 .brand h1 .dday-mark .dash { display: inline-block; width: 9px; height: 4px; border-radius: 2px; background: var(--bad); margin: 0 2px; transform: translateY(-7px); }
-.side { display: grid; justify-items: end; gap: 6px; flex: none; }
+.foot { display: grid; justify-items: center; gap: 10px; text-align: center; font-size: 14px; color: var(--muted); padding-top: 8px; }
+.foot .me { font-size: 15px; gap: 8px; }
+.foot .me .avatar { width: 28px; height: 28px; font-size: 13px; }
+.foot .me .textbtn { font-size: 15px; }
 .me { display: flex; align-items: center; gap: 5px; font-size: 13px; color: var(--muted); }
 .me .avatar { width: 22px; height: 22px; font-size: 11px; }
 .me-name { font-weight: 700; color: var(--ink-2); }
@@ -95,7 +98,7 @@ h2 { margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -0.02em; }
 .person[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
 
 /* 입력 */
-.add { padding: 20px; display: grid; gap: 18px; }
+.add { display: grid; gap: 18px; }
 .field { display: grid; gap: 8px; min-width: 0; }
 .field > span { font-size: 15px; font-weight: 700; color: var(--ink-2); }
 input[type="text"], input[type="password"], input[type="date"] {
@@ -126,9 +129,10 @@ input::placeholder { color: var(--muted); }
 .err { margin: 0; color: var(--bad); font-size: 15px; font-weight: 600; }
 
 /* 섹션 전환 */
-.sections { display: grid; grid-template-columns: auto auto; background: var(--surface); border-radius: 14px; padding: 4px; gap: 3px; box-shadow: var(--shadow); border: 1px solid var(--line); }
+.sections { display: grid; grid-template-columns: repeat(3, auto); background: var(--surface); border-radius: 14px; padding: 4px; gap: 3px; box-shadow: var(--shadow); border: 1px solid var(--line); }
 @media (prefers-color-scheme: light) { .sections { border-color: transparent; } }
-.sections button { height: 40px; padding: 0 9px; border: 0; border-radius: 10px; background: none; font-size: 15px; font-weight: 800; white-space: nowrap; color: var(--muted); cursor: pointer; }
+.sections button { height: 42px; padding: 0 9px; border: 0; border-radius: 10px; background: none; font-size: 15px; font-weight: 800; white-space: nowrap; color: var(--muted); cursor: pointer; }
+@media (max-width: 400px) { .sections button { padding: 0 7px; font-size: 14px; height: 40px; } .sections { padding: 3px; gap: 2px; } }
 .sections button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
 .legend em { font-style: normal; }
 .hint { font-size: 14px; color: var(--muted); font-weight: 500; }
@@ -155,6 +159,56 @@ input::placeholder { color: var(--muted); }
 body.locked { overflow: hidden; }
 .stat:active { transform: scale(.98); }
 
+/* 요약 팝업: 화면 가운데보다 살짝 위 */
+#sheetBack { align-items: flex-start; padding: calc(env(safe-area-inset-top, 0px) + 11vh) 16px 16px; }
+#sheetBack .sheet { border-radius: 24px; max-height: 72vh; padding-bottom: 0; box-shadow: 0 20px 60px rgba(0,0,0,.3); }
+#sheetBack .sheet-h::before { display: none; }
+#sheetBack .sheet-h { padding-top: 20px; }
+@media (prefers-reduced-motion: no-preference) {
+  #sheetBack:not([hidden]) .sheet { animation: pop .2s cubic-bezier(.2,.8,.2,1); }
+}
+@keyframes pop { from { transform: translateY(12px) scale(.97); opacity: 0; } }
+
+/* 추가·수정 시트 */
+.form-sheet { grid-template-rows: auto 1fr auto; }
+.form-sheet .sheet-body { gap: 18px; }
+.sheet-foot { padding: 12px 20px 16px; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); border-top: 1px solid var(--line); background: var(--bg); display: grid; gap: 8px; }
+.foot-btns { display: flex; gap: 10px; }
+.foot-btns .primary { flex: 1; }
+.ghostbtn { height: 54px; padding: 0 18px; border-radius: 14px; border: 1.5px solid var(--line); background: var(--surface); font-size: 16px; font-weight: 700; cursor: pointer; color: var(--ink-2); white-space: nowrap; width: 100%; }
+.foot-btns .ghostbtn { width: auto; height: 56px; }
+.ghostbtn.danger { color: var(--bad); }
+.ghostbtn.danger.confirm { background: var(--bad); border-color: var(--bad); color: #fff; }
+.two-even { grid-template-columns: 1fr auto; }
+.add .two:not(.two-even) { grid-template-columns: 1fr; }
+.add .stepper { justify-self: start; }
+.seg button { white-space: nowrap; }
+.opt { font-size: 13px; font-weight: 600; color: var(--muted); margin-left: 4px; }
+.add .field > span { display: flex; align-items: baseline; }
+
+/* 추가 버튼 */
+.fab { position: fixed; z-index: 40; right: max(20px, calc(env(safe-area-inset-right, 0px) + 12px)); bottom: calc(env(safe-area-inset-bottom, 0px) + 20px); height: 60px; padding: 0 24px 0 20px; border-radius: 30px; border: 0; background: var(--accent); color: var(--accent-ink); font-size: 18px; font-weight: 800; box-shadow: 0 8px 24px color-mix(in srgb, var(--accent) 40%, transparent); cursor: pointer; display: flex; align-items: center; gap: 6px; }
+.fab span { font-size: 28px; font-weight: 500; line-height: 1; margin-top: -2px; }
+.fab:active { transform: scale(.96); }
+@media (min-width: 760px) { .fab { right: calc(50% - 340px); } }
+
+/* 알림 */
+.toast { position: fixed; z-index: 60; left: 50%; transform: translateX(-50%); top: calc(env(safe-area-inset-top, 0px) + 12px); width: max-content; max-width: calc(100% - 32px); background: #1b222b; color: #f3f5f7; border-radius: 16px; padding: 12px 12px 12px 18px; display: flex; align-items: center; gap: 14px; font-size: 16px; font-weight: 600; box-shadow: 0 8px 30px rgba(0,0,0,.25); }
+.toast span { min-width: 0; overflow-wrap: anywhere; }
+.toast button { flex: none; background: none; border: 0; color: #9fb4ff; font-size: 16px; font-weight: 800; padding: 6px 8px; cursor: pointer; }
+@media (prefers-reduced-motion: no-preference) { .toast:not([hidden]) { animation: drop .2s ease-out; }
+@keyframes drop { from { transform: translate(-50%, -16px); opacity: 0; } } }
+
+/* 검색 */
+.search { position: relative; }
+.search svg { position: absolute; left: 16px; top: 50%; width: 20px; height: 20px; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+.search input { font: inherit; font-size: 17px; width: 100%; height: 52px; border-radius: 14px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); padding: 0 16px 0 46px; appearance: none; -webkit-appearance: none; }
+.search input:focus { outline: none; border-color: var(--accent); }
+.memo { font-size: 15px; color: var(--ink-2); background: var(--surface-2); border-radius: 10px; padding: 6px 10px; margin-top: 2px; overflow-wrap: anywhere; }
+.opened { color: var(--accent); font-weight: 600; }
+.act.edit { color: var(--ink-2); }
+main { padding-bottom: 110px !important; }
+
 /* 필터 */
 .filters { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin: 0 calc(-1 * max(20px, env(safe-area-inset-left, 0px))); padding: 2px max(20px, env(safe-area-inset-left, 0px)); }
 .filters::-webkit-scrollbar { display: none; }
@@ -171,7 +225,9 @@ body.locked { overflow: hidden; }
 .note { margin: 0; padding: 12px 16px; border-radius: 14px; background: var(--accent-soft); color: var(--accent); font-size: 15px; font-weight: 600; }
 .item { padding: 14px 14px 14px 14px; display: grid; grid-template-columns: 72px 1fr; gap: 14px; align-items: center; }
 .dday { height: 72px; border-radius: 14px; display: grid; place-content: center; text-align: center; line-height: 1.1; }
-.dday b { font-size: 22px; font-weight: 800; letter-spacing: -0.03em; }
+.dday b { white-space: nowrap; font-size: 22px; font-weight: 800; letter-spacing: -0.03em; }
+.dday b.long { font-size: 18px; }
+.dday b.xlong { font-size: 15px; }
 .dday small { font-size: 13px; font-weight: 700; margin-top: 3px; }
 .dday.ok { background: var(--ok-soft); color: var(--ok); }
 .dday.warn { background: var(--warn-soft); color: var(--warn); }
@@ -188,10 +244,54 @@ body.locked { overflow: hidden; }
 .act.del { color: var(--muted); }
 .act.del.confirm { background: var(--bad); border-color: var(--bad); color: #fff; }
 .act.undo { color: var(--accent); grid-column: 1 / -1; }
-@media (min-width: 560px) {
+@media (min-width: 560px) and (max-width: 699px) {
   .item { grid-template-columns: 72px 1fr auto; }
   .acts { grid-column: auto; grid-template-columns: auto auto auto; }
   .act.undo { grid-column: auto; }
+}
+#list { display: grid; gap: 22px; align-items: start; }
+.side-panel { display: contents; }
+.month { order: 1; }
+.foot { order: 2; }
+
+/* ===== 태블릿 세로: 더 넓게, 카드 2열 ===== */
+@media (min-width: 700px) {
+  .topbar-in { max-width: 980px; padding-left: max(28px, env(safe-area-inset-left, 0px)); padding-right: max(28px, env(safe-area-inset-right, 0px)); }
+  main { max-width: 980px; padding-left: max(28px, env(safe-area-inset-left, 0px)); padding-right: max(28px, env(safe-area-inset-right, 0px)); }
+  .group { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .group-h { grid-column: 1 / -1; }
+  .stats { gap: 14px; }
+  .stat { padding: 18px 20px 16px; }
+  .stat b { font-size: 40px; }
+  .filters { margin: 0; padding: 2px 0; flex-wrap: wrap; overflow: visible; }
+  .fab { right: max(28px, calc(env(safe-area-inset-right, 0px) + 16px)); }
+  .sections button { height: 48px; padding: 0 18px; font-size: 17px; }
+  .sections { padding: 5px; gap: 4px; border-radius: 16px; }
+  .logo { width: 52px; height: 52px; }
+  .item { padding: 16px; }
+}
+
+/* ===== 태블릿 가로: 왼쪽 요약 패널 + 오른쪽 상태별 보드 ===== */
+@media (min-width: 900px) and (orientation: landscape) {
+  .topbar-in, main { max-width: 1440px; }
+  main { grid-template-columns: 330px minmax(0, 1fr); column-gap: 28px; align-items: start; }
+  #loginPanel { grid-column: 1 / -1; max-width: 480px; justify-self: center; width: 100%; }
+  .side-panel { display: grid; gap: 18px; grid-column: 1; grid-row: 2 / span 3; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 84px); max-height: calc(100vh - 100px); overflow-y: auto; padding-bottom: 8px; }
+  .month { order: 0; }
+  #sampleNote { grid-column: 2; grid-row: 2; }
+  #list { grid-column: 2; grid-row: 3; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 16px; }
+  .foot { grid-column: 1 / -1; grid-row: 4; }
+  .stats { grid-template-columns: 1fr; gap: 10px; }
+  .stat { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; }
+  .stat b { font-size: 32px; }
+  .group { grid-template-columns: 1fr; gap: 10px; background: color-mix(in srgb, var(--surface-2) 70%, transparent); border-radius: 22px; padding: 14px; align-content: start; }
+  .group-h { padding: 2px 4px 4px; }
+  .group:only-child { grid-column: 1 / -1; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+  #list > .empty { grid-column: 1 / -1; }
+  .item { grid-template-columns: 64px 1fr; gap: 12px; padding: 12px; }
+  .dday { height: 64px; }
+  .name { font-size: 18px; }
+  .act { height: 42px; font-size: 15px; padding: 0 10px; }
 }
 .empty { padding: 36px 20px; text-align: center; color: var(--muted); font-size: 16px; }
 .empty b { display: block; color: var(--ink); font-size: 18px; margin-bottom: 4px; }
@@ -208,7 +308,7 @@ body.locked { overflow: hidden; }
 .legend span { display: flex; align-items: center; gap: 6px; }
 .legend i { width: 10px; height: 10px; border-radius: 3px; }
 .legend b { font-weight: 800; }
-footer { text-align: center; font-size: 14px; color: var(--muted); }
+
 
 @media (max-width: 380px) {
   .quick { grid-template-columns: repeat(3, 1fr); }
@@ -231,16 +331,10 @@ footer { text-align: center; font-size: 14px; color: var(--muted); }
       </svg>
       <div class="wordmark"><small id="today"></small><h1><span class="home">우리집</span><span class="dday-mark">D<span class="dash"></span>day</span></h1></div>
     </div>
-    <div class="side">
-      <div class="sections" role="group" aria-label="섹션">
-        <button type="button" data-c="food" aria-pressed="true">식품</button>
-        <button type="button" data-c="home" aria-pressed="false">생활용품</button>
-      </div>
-      <div class="me" id="meBox" hidden>
-        <span class="avatar" id="avatar" aria-hidden="true"></span>
-        <span class="me-name" id="meName"></span>
-        <button class="textbtn" id="logoutBtn" type="button">로그아웃</button>
-      </div>
+    <div class="sections" role="group" aria-label="섹션">
+      <button type="button" data-c="food" aria-pressed="true">식품</button>
+      <button type="button" data-c="home" aria-pressed="false">생활용품</button>
+      <button type="button" data-c="med" aria-pressed="false">의약품</button>
     </div>
   </div>
 </header>
@@ -260,6 +354,7 @@ footer { text-align: center; font-size: 14px; color: var(--muted); }
   </form>
 
 
+  <aside class="side-panel">
   <!-- 요약 -->
   <div class="stats" role="group" aria-label="상태별 개수">
     <button class="stat bad" data-f="bad" aria-haspopup="dialog"><span class="lbl"><i></i>지남</span><b id="n-bad">0<span>개</span></b></button>
@@ -267,52 +362,15 @@ footer { text-align: center; font-size: 14px; color: var(--muted); }
     <button class="stat ok" data-f="ok" aria-haspopup="dialog"><span class="lbl"><i></i>여유</span><b id="n-ok">0<span>개</span></b></button>
   </div>
 
-  <!-- 추가 -->
-  <form class="card add" id="addForm" novalidate>
-    <h2 id="addTitle">식품 추가</h2>
-    <label class="field"><span>이름</span><input type="text" id="fName" placeholder="예: 우유 1L" autocomplete="off" enterkeyhint="done"></label>
-    <div class="two">
-      <div class="field"><span>보관 위치</span>
-        <div class="seg" id="storageSeg" role="group" aria-label="보관 위치"></div>
-      </div>
-      <div class="field"><span>수량</span>
-        <div class="stepper"><button type="button" id="qMinus" aria-label="수량 줄이기">−</button><output id="qOut">1</output><button type="button" id="qPlus" aria-label="수량 늘리기">+</button></div>
-      </div>
-    </div>
-    <div class="field"><span>날짜 기록 방식</span>
-      <div class="seg two-seg" id="modeSeg" role="group" aria-label="날짜 기록 방식">
-        <button type="button" data-v="expiry" aria-pressed="true">기한 날짜</button>
-        <button type="button" data-v="stored" aria-pressed="false">넣은 날짜</button>
-      </div>
-      <small class="hint" id="modeHint"></small>
-    </div>
-    <div class="field datebox"><span id="dateLabel">소비기한 · 유통기한</span>
-      <div class="when"><strong id="whenDate"></strong><em id="whenLeft"></em></div>
-      <input type="date" id="fDate" aria-label="날짜 직접 고르기">
-      <div class="qrow" id="qrow"><span>누를 때마다 더해져요</span><button type="button" class="reset" id="resetDate">오늘로 되돌리기</button></div>
-      <div class="quick" id="quickStored" hidden>
-        <button type="button" class="qbtn" data-back="0">오늘</button>
-        <button type="button" class="qbtn" data-back="1">어제</button>
-        <button type="button" class="qbtn" data-back="7">1주 전</button>
-        <button type="button" class="qbtn" data-back="30">1달 전</button>
-      </div>
-      <div class="quick" id="quickExpiry">
-        <button type="button" class="qbtn" data-d="1">+1일</button>
-        <button type="button" class="qbtn" data-d="3">+3일</button>
-        <button type="button" class="qbtn" data-d="7">+7일</button>
-        <button type="button" class="qbtn" data-m="1">+1달</button>
-        <button type="button" class="qbtn" data-m="3">+3달</button>
-      </div>
-    </div>
-    <p class="err" id="err" hidden></p>
-    <button class="primary" type="submit">추가하기</button>
-  </form>
+
+  <!-- 검색 -->
+  <div class="search">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2.2"/><line x1="16.5" y1="16.5" x2="21" y2="21" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+    <input type="search" id="q" placeholder="이름, 위치, 메모로 찾기" autocomplete="off" aria-label="검색">
+  </div>
 
   <!-- 필터 -->
   <div class="filters" id="filters" role="group" aria-label="보기"></div>
-
-  <p class="note" id="sampleNote" hidden>아래는 예시예요. 첫 식품을 추가하면 사라집니다.</p>
-  <div id="list" style="display:grid;gap:22px"></div>
 
   <!-- 이번 달 -->
   <section class="card month" aria-label="이번 달 기록">
@@ -320,9 +378,85 @@ footer { text-align: center; font-size: 14px; color: var(--muted); }
     <div class="bar"><i class="e" id="barE" style="width:0"></i><i class="t" id="barT" style="width:0"></i></div>
     <div class="legend"><span><i style="background:var(--ok)"></i><em id="lblE">먹음</em> <b id="nE">0</b>개</span><span><i style="background:var(--bad)"></i>버림 <b id="nT">0</b>개</span></div>
   </section>
+  </aside>
 
-  <footer id="saveInfo"></footer>
+  <p class="note" id="sampleNote" hidden>아래는 예시예요. 첫 항목을 추가하면 사라집니다.</p>
+  <div id="list"></div>
+
+  <footer class="foot">
+    <div class="me" id="meBox" hidden>
+      <span class="avatar" id="avatar" aria-hidden="true"></span>
+      <span class="me-name" id="meName"></span>
+      <button class="textbtn" id="logoutBtn" type="button">로그아웃</button>
+    </div>
+    <span id="saveInfo"></span>
+  </footer>
 </main>
+
+<div class="sheet-back" id="formBack" hidden>
+  <form class="sheet form-sheet" id="addForm" role="dialog" aria-modal="true" aria-labelledby="addTitle" novalidate>
+    <div class="sheet-h"><h2 id="addTitle">식품 추가</h2><button class="sheet-close" id="formClose" type="button" aria-label="닫기">×</button></div>
+    <div class="sheet-body add">
+      <div class="field"><span>종류</span>
+        <div class="seg two-seg" id="kindSeg" style="height:54px" role="group" aria-label="종류">
+          <button type="button" data-v="food" aria-pressed="true">식품</button>
+          <button type="button" data-v="home" aria-pressed="false">생활용품</button>
+          <button type="button" data-v="med" aria-pressed="false">의약품</button>
+        </div>
+      </div>
+      <label class="field"><span>이름</span><input type="text" id="fName" placeholder="예: 우유 1L" autocomplete="off" enterkeyhint="done"></label>
+      <div class="two">
+        <div class="field" id="placeField"><span>보관 위치</span>
+          <div class="seg" id="storageSeg" role="group" aria-label="보관 위치"></div>
+        </div>
+        <div class="field"><span>수량</span>
+          <div class="stepper"><button type="button" id="qMinus" aria-label="수량 줄이기">−</button><output id="qOut">1</output><button type="button" id="qPlus" aria-label="수량 늘리기">+</button></div>
+        </div>
+      </div>
+      <div class="field"><span>날짜 기록 방식</span>
+        <div class="seg two-seg" id="modeSeg" role="group" aria-label="날짜 기록 방식">
+          <button type="button" data-v="expiry" aria-pressed="true">기한 날짜</button>
+          <button type="button" data-v="stored" aria-pressed="false">넣은 날짜</button>
+        </div>
+        <small class="hint" id="modeHint"></small>
+      </div>
+      <div class="field datebox"><span id="dateLabel">소비기한 · 유통기한</span>
+        <div class="when"><strong id="whenDate"></strong><em id="whenLeft"></em></div>
+        <input type="date" id="fDate" aria-label="날짜 직접 고르기">
+        <div class="qrow" id="qrow"><span>누를 때마다 더해져요</span><button type="button" class="reset" id="resetDate">오늘로 되돌리기</button></div>
+        <div class="quick" id="quickStored" hidden>
+          <button type="button" class="qbtn" data-back="0">오늘</button>
+          <button type="button" class="qbtn" data-back="1">어제</button>
+          <button type="button" class="qbtn" data-back="7">1주 전</button>
+          <button type="button" class="qbtn" data-back="30">1달 전</button>
+        </div>
+        <div class="quick" id="quickExpiry">
+          <button type="button" class="qbtn" data-d="1">+1일</button>
+          <button type="button" class="qbtn" data-d="3">+3일</button>
+          <button type="button" class="qbtn" data-d="7">+7일</button>
+          <button type="button" class="qbtn" data-m="1">+1달</button>
+          <button type="button" class="qbtn" data-m="3">+3달</button>
+        </div>
+      </div>
+      <div class="two two-even">
+        <label class="field"><span>개봉한 날 <small class="opt">선택</small></span><input type="date" id="fOpened"></label>
+        <div class="field"><span>&nbsp;</span><button type="button" class="ghostbtn" id="openedToday">오늘 개봉</button></div>
+      </div>
+      <label class="field"><span>메모 <small class="opt">선택</small></span><input type="text" id="fMemo" placeholder="예: 2+1 행사, 개봉 후 6개월 안에" autocomplete="off"></label>
+    </div>
+    <div class="sheet-foot">
+      <p class="err" id="err" hidden></p>
+      <div class="foot-btns">
+        <button type="button" class="ghostbtn danger" id="delBtn" hidden>삭제</button>
+        <button class="primary" type="submit" id="saveBtn">추가하기</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<button class="fab" id="fab" type="button" hidden><span aria-hidden="true">+</span> 추가</button>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden><span id="toastMsg"></span><button type="button" id="toastUndo">되돌리기</button></div>
 
 <div class="sheet-back" id="sheetBack" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
@@ -374,12 +508,12 @@ $("today").textContent = (t.getMonth() + 1) + "월 " + t.getDate() + "일 (" + W
 function fitDate() {
   const d = $("today"), h = document.querySelector(".brand h1");
   // 제목 크기: 오른쪽 섹션 버튼과 겹치지 않을 만큼 (최대 26px)
-  const bar = document.querySelector(".topbar-in"), side = document.querySelector(".side"), logo = document.querySelector(".logo");
+  const bar = document.querySelector(".topbar-in"), logo = document.querySelector(".logo");
   const cs = getComputedStyle(bar);
-  const room = bar.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight) - side.offsetWidth - logo.getBoundingClientRect().width - 10 - 14;
+  const room = bar.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight) - document.querySelector(".sections").offsetWidth - logo.getBoundingClientRect().width - 10 - 10;
   h.style.fontSize = "26px";
   const hw = h.scrollWidth;
-  if (hw > room) h.style.fontSize = Math.max(16, 26 * room / hw).toFixed(1) + "px";
+  if (hw > room) h.style.fontSize = Math.max(15, 26 * room / hw).toFixed(1) + "px";
   const range = document.createRange(); range.selectNodeContents(d);
   d.style.fontSize = "23px";
   const w = range.getBoundingClientRect().width, target = h.getBoundingClientRect().width;
@@ -397,9 +531,14 @@ const SECTIONS = {
     usedPast: "먹음", empty: "위에서 이름과 날짜를 넣고 추가하세요.",
   },
   home: {
-    label: "생활용품", add: "생활용품 추가", placeholder: "예: 세탁세제, 선크림, 소독약",
-    places: ["주방", "펜트리", "세탁실", "기타"], used: "다 씀", usedOne: "1개 다 씀",
-    usedPast: "다 씀", empty: "세제, 화장품, 약처럼 기한이 있는 물건을 넣어 보세요.",
+    label: "생활용품", add: "생활용품 추가", placeholder: "예: 세탁세제, 선크림, 주방세제",
+    places: ["주방", "팬트리", "세탁실", "기타"], used: "다 씀", usedOne: "1개 다 씀",
+    usedPast: "다 씀", empty: "세제, 화장품처럼 기한이 있는 물건을 넣어 보세요.",
+  },
+  med: {
+    label: "의약품", add: "의약품 추가", placeholder: "예: 해열진통제, 소화제, 상처 연고",
+    places: [], used: "다 씀", usedOne: "1개 다 씀",
+    usedPast: "다 씀", empty: "상비약, 연고, 영양제처럼 기한이 있는 약을 넣어 보세요.",
   },
 };
 const catOf = (x) => x.category || "food";
@@ -412,7 +551,9 @@ const SAMPLES = [
   { id: "x3", category: "food", name: "계란 10구", storage: "냉장", expires: addDays(9), qty: 1, status: "active", addedByName: "예시" },
   { id: "x4", category: "food", dateType: "stored", name: "삼겹살 600g", storage: "냉동", storedOn: addDays(-12), qty: 2, status: "active", addedByName: "예시" },
   { id: "x5", category: "home", name: "세탁세제", storage: "세탁실", expires: addDays(120), qty: 1, status: "active", addedByName: "예시" },
-  { id: "x6", category: "home", name: "키친타월", storage: "펜트리", expires: addDays(25), qty: 1, status: "active", addedByName: "예시" },
+  { id: "x7", category: "med", name: "해열진통제", expires: addDays(200), qty: 1, status: "active", addedByName: "예시" },
+  { id: "x8", category: "med", name: "상처 연고", expires: addDays(-5), qty: 1, status: "active", addedByName: "예시", openedOn: addDays(-90) },
+  { id: "x6", category: "home", name: "키친타월", storage: "팬트리", expires: addDays(25), qty: 1, status: "active", addedByName: "예시" },
 ];
 
 let items = [];
@@ -440,20 +581,25 @@ onAuthStateChanged(auth, (user) => {
   if (unsubItems) { unsubItems(); unsubItems = null; }
   me = user; items = []; itemsCol = null;
   if (!user) {
-    setVis("meBox", false); setVis("loginPanel", true);
+    setVis("meBox", false); setVis("loginPanel", true); setVis("fab", false); closeForm();
     $("saveInfo").textContent = "";
     render();
     return;
   }
-  setVis("loginPanel", false); setVis("meBox", true);
+  setVis("loginPanel", false); setVis("meBox", true); setVis("fab", true);
   $("avatar").textContent = myName().slice(0, 1);
   $("meName").textContent = myName();
+  fitDate();
   itemsCol = collection(db, "fridges", "home", "items");
   unsubItems = onSnapshot(itemsCol, (snap) => {
-    items = snap.docs.map((d) => Object.assign({ id: d.id }, d.data()));
+    items = snap.docs.map((d) => {
+      const x = Object.assign({ id: d.id }, d.data());
+      if (x.storage === "펜트리") x.storage = "팬트리"; // 예전 표기 맞춤
+      return x;
+    });
     render();
   }, (e) => { $("saveInfo").textContent = "목록을 불러오지 못했어요 (" + e.code + ")"; });
-  $("saveInfo").textContent = myName() + " 님으로 로그인됨 · 쭈와와와 애와와가 함께 봐요";
+  $("saveInfo").textContent = "쭈와와와 애와와가 함께 보는 목록이에요";
   render();
 });
 
@@ -465,13 +611,49 @@ function showErr(msg) { $("err").textContent = msg; setVis("err", true); }
 
 // 먹음/버림: 1개씩 처리. 2개 이상이면 수량만 하나 줄이고 기록을 따로 남깁니다.
 function consumeOne(x, status) {
+  const S = SECTIONS[catOf(x)];
+  const verb = status === "eaten" ? S.usedPast : "버림";
   const stamp = { status, qty: 1, closedAt: Date.now(), closedByName: myName() };
-  if ((x.qty || 1) <= 1) return save(Object.assign({}, x, stamp));
+  const original = Object.assign({}, x);
+  if ((x.qty || 1) <= 1) {
+    save(Object.assign({}, x, stamp)).catch(fail);
+    toast(x.name + " " + verb, () => save(original));
+    return;
+  }
+  const recId = newId();
   const batch = writeBatch(db);
   batch.update(doc(itemsCol, x.id), { qty: increment(-1) });
-  batch.set(doc(itemsCol, newId()), Object.assign({}, body(x), stamp, { sourceId: x.id }));
-  return batch.commit();
+  batch.set(doc(itemsCol, recId), Object.assign({}, body(x), stamp, { sourceId: x.id }));
+  batch.commit().catch(fail);
+  toast(x.name + " 1개 " + verb + " · " + ((x.qty || 1) - 1) + "개 남음", () => {
+    const b = writeBatch(db);
+    b.update(doc(itemsCol, x.id), { qty: increment(1) });
+    b.delete(doc(itemsCol, recId));
+    return b.commit();
+  });
 }
+function removeWithUndo(x) {
+  const original = Object.assign({}, x);
+  remove(x.id).catch(fail);
+  toast(x.name + " 삭제함", () => save(original));
+}
+const fail = (e) => toast("저장하지 못했어요 (" + (e && e.code || "오류") + ")");
+
+// ---- 알림 (되돌리기) ----
+let toastTimer = null, toastFn = null;
+function toast(msg, undoFn) {
+  $("toastMsg").textContent = msg;
+  toastFn = undoFn || null;
+  setVis("toastUndo", !!undoFn);
+  setVis("toast", true);
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { setVis("toast", false); toastFn = null; }, 5000);
+}
+$("toastUndo").addEventListener("click", () => {
+  const fn = toastFn; toastFn = null;
+  setVis("toast", false); clearTimeout(toastTimer);
+  if (fn) Promise.resolve(fn()).catch(fail);
+});
 function undo(x) {
   const src = x.sourceId && items.find((i) => i.id === x.sourceId && i.status === "active");
   if (src) {
@@ -509,7 +691,7 @@ function setMode(m, byUser) {
   mode = m;
   document.querySelectorAll("#modeSeg button").forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.v === m)));
   const stored = m === "stored";
-  $("dateLabel").textContent = stored ? "넣은 날짜" : (section === "food" ? "소비기한 · 유통기한" : "사용기한 · 유효기간");
+  $("dateLabel").textContent = stored ? "넣은 날짜" : (formSection === "food" ? "소비기한 · 유통기한" : formSection === "med" ? "사용기한" : "사용기한 · 유효기간");
   $("modeHint").textContent = stored ? "기한 대신 넣은 지 며칠 됐는지 보여 줘요. 냉동 고기나 반찬처럼 기한이 안 적힌 것에 좋아요." : "";
   setVis("quickExpiry", !stored); setVis("qrow", !stored); setVis("quickStored", stored);
   setDate(addDays(0));
@@ -520,9 +702,12 @@ function setPlace(p) {
   // 냉동을 고르면 넣은 날짜 방식으로 바꿔 줌 (직접 바꾼 적이 없을 때만)
   if (!modeTouched) setMode(p === "냉동" ? "stored" : "expiry", false);
 }
-function buildForm() {
-  const S = SECTIONS[section];
-  $("addTitle").textContent = S.add;
+let formSection = "food";
+function setFormSection(sec, keepMode) {
+  formSection = sec;
+  const S = SECTIONS[sec];
+  document.querySelectorAll("#kindSeg button").forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.v === sec)));
+  if (!editing) $("addTitle").textContent = S.add;
   $("fName").placeholder = S.placeholder;
   const seg = $("storageSeg");
   seg.textContent = "";
@@ -531,10 +716,14 @@ function buildForm() {
     b.onclick = () => setPlace(p);
     seg.append(b);
   });
-  modeTouched = false;
-  mode = "";
-  setMode("expiry", false);
-  setPlace(S.places[0]);
+  if (!keepMode) { modeTouched = false; mode = ""; setMode("expiry", false); }
+  else { const m = mode; mode = ""; setMode(m, false); }
+  setVis("placeField", S.places.length > 0);
+  if (S.places.length) setPlace(S.places.includes(place) ? place : S.places[0]);
+  else { place = null; if (!modeTouched) setMode("expiry", false); }
+}
+function buildForm() {
+  const S = SECTIONS[section];
   // 필터
   const f = $("filters");
   f.textContent = "";
@@ -567,20 +756,28 @@ function itemCard(x, usingSamples) {
   } else if (stored) {
     const d = sinceDays(x.storedOn);
     dd.classList.add("gray");
-    dd.append(el("b", "", d <= 0 ? "오늘" : d + "일째"), el("small", "", d <= 0 ? "넣음" : "보관 중"));
+    const lbl = d <= 0 ? "오늘" : d + "일째";
+    dd.append(el("b", lbl.length >= 6 ? "xlong" : lbl.length >= 5 ? "long" : "", lbl), el("small", "", d <= 0 ? "넣음" : "보관 중"));
   } else {
     const n = daysLeft(x.expires);
     dd.classList.add(level(n));
-    dd.append(el("b", "", n === 0 ? "D-day" : n > 0 ? "D-" + n : "D+" + (-n)), el("small", "", n < 0 ? "지남" : n === 0 ? "오늘까지" : "남음"));
+    const label = n === 0 ? "D-day" : n > 0 ? "D-" + n : "D+" + (-n);
+    dd.append(el("b", label.length >= 6 ? "xlong" : label.length >= 5 ? "long" : "", label), el("small", "", n < 0 ? "지남" : n === 0 ? "오늘까지" : "남음"));
   }
   const info = el("div", "info");
   const nm = el("div", "name", x.name);
   if (x.status === "active" && (x.qty || 1) > 1) nm.append(el("span", "qty", x.qty + "개"));
   let metaText;
-  if (x.status !== "active") metaText = x.storage + " · " + kdate(x.closedAt) + (x.closedByName ? " · " + x.closedByName : "");
-  else if (stored) metaText = x.storage + " · " + fmtShort(x.storedOn) + " 넣음" + (x.addedByName ? " · " + x.addedByName : "");
-  else metaText = x.storage + " · " + fmtShort(x.expires) + "까지" + (x.addedByName ? " · " + x.addedByName : "");
+  const loc = x.storage ? x.storage + " · " : "";
+  if (x.status !== "active") metaText = loc + kdate(x.closedAt) + (x.closedByName ? " · " + x.closedByName : "");
+  else if (stored) metaText = loc + fmtShort(x.storedOn) + " 넣음" + (x.addedByName ? " · " + x.addedByName : "");
+  else metaText = loc + fmtShort(x.expires) + "까지" + (x.addedByName ? " · " + x.addedByName : "");
   info.append(nm, el("div", "meta", metaText));
+  if (x.status === "active" && x.openedOn) {
+    const o = sinceDays(x.openedOn);
+    info.append(el("div", "meta opened", o <= 0 ? "오늘 개봉" : "개봉 " + (o + 1) + "일째"));
+  }
+  if (x.memo) info.append(el("div", "memo", x.memo));
   card.append(dd, info);
 
   if (!usingSamples) {
@@ -589,17 +786,12 @@ function itemCard(x, usingSamples) {
       const multi = (x.qty || 1) > 1;
       const eat = el("button", "act eat", multi ? S.usedOne : S.used);
       const toss = el("button", "act toss", multi ? "1개 버림" : "버림");
-      const del = el("button", "act del", "삭제");
-      eat.type = toss.type = del.type = "button";
+      const edit = el("button", "act edit", "수정");
+      eat.type = toss.type = edit.type = "button";
       eat.onclick = () => consumeOne(x, "eaten");
       toss.onclick = () => consumeOne(x, "tossed");
-      let armed = false;
-      del.onclick = () => {
-        if (armed) { remove(x.id); return; }
-        armed = true; del.classList.add("confirm"); del.textContent = "정말 삭제";
-        setTimeout(() => { armed = false; del.classList.remove("confirm"); del.textContent = "삭제"; }, 3000);
-      };
-      acts.append(eat, toss, del);
+      edit.onclick = () => { closeSheet(); openForm(x); };
+      acts.append(eat, toss, edit);
     } else {
       const u = el("button", "act undo", "되돌리기");
       u.type = "button"; u.onclick = () => undo(x);
@@ -617,6 +809,8 @@ function render() {
   const source = usingSamples ? SAMPLES.filter((x) => x.category === section) : mine;
   const pool = source.filter((x) => x.status === "active");
   setVis("sampleNote", usingSamples && !!me);
+  const qv = ($("q").value || "").trim().toLowerCase();
+  const hit = (x) => !qv || [x.name, x.storage, x.memo, x.addedByName].some((v) => v && String(v).toLowerCase().includes(qv));
 
   const dated = pool.filter((x) => modeOf(x) === "expiry");
   const counts = { bad: 0, warn: 0, ok: 0 };
@@ -628,20 +822,20 @@ function render() {
   list.textContent = "";
 
   if (filterPlace === "done") {
-    const rows = mine.filter((x) => x.status !== "active").sort((a, b) => (b.closedAt || 0) - (a.closedAt || 0)).slice(0, 60);
+    const rows = mine.filter((x) => x.status !== "active" && hit(x)).sort((a, b) => (b.closedAt || 0) - (a.closedAt || 0)).slice(0, 60);
     if (!rows.length) { emptyCard(list, "아직 처리한 기록이 없어요", "‘" + S.used + "’이나 ‘버림’을 누르면 여기에 쌓여요."); }
     else { const g = el("div", "group"); rows.forEach((x) => g.append(itemCard(x, false))); list.append(g); }
     return monthly(mine, S);
   }
 
-  const inPlace = (x) => filterPlace === "all" || x.storage === filterPlace;
+  const inPlace = (x) => (filterPlace === "all" || x.storage === filterPlace) && hit(x);
   const expRows = dated.filter(inPlace)
     .filter((x) => !filterLevel || level(daysLeft(x.expires)) === filterLevel)
     .sort((a, b) => a.expires.localeCompare(b.expires));
   const storedRows = filterLevel ? [] : pool.filter((x) => modeOf(x) === "stored").filter(inPlace)
     .sort((a, b) => a.storedOn.localeCompare(b.storedOn));
 
-  if (!expRows.length && !storedRows.length) emptyCard(list, "해당하는 항목이 없어요", S.empty);
+  if (!expRows.length && !storedRows.length) emptyCard(list, qv ? "‘" + $("q").value.trim() + "’ 검색 결과가 없어요" : "해당하는 항목이 없어요", qv ? "다른 말로 찾아보거나, 위치 필터를 ‘전체’로 바꿔 보세요." : S.empty);
   const titles = { bad: "기한 지남", warn: "3일 이내", ok: "여유 있음" };
   ["bad", "warn", "ok"].forEach((k) => {
     const part = expRows.filter((x) => level(daysLeft(x.expires)) === k);
@@ -759,21 +953,97 @@ $("sheetClose").addEventListener("click", closeSheet);
 $("sheetBack").addEventListener("click", (e) => { if (e.target === $("sheetBack")) closeSheet(); });
 addEventListener("keydown", (e) => { if (e.key === "Escape") closeSheet(); });
 
+// ---- 추가·수정 시트 ----
+let editing = null, formOpener = null;
+function resetFields() {
+  $("fName").value = ""; setQty(1);
+  $("fOpened").value = ""; $("fMemo").value = "";
+  setVis("err", false);
+}
+function openForm(item) {
+  editing = item || null;
+  formOpener = document.activeElement;
+  resetFields();
+  disarmDelete();
+  if (editing) {
+    $("addTitle").textContent = editing.name + " 수정";
+    $("saveBtn").textContent = "저장하기";
+    setVis("delBtn", true);
+    $("fName").value = editing.name;
+    setQty(editing.qty || 1);
+    setFormSection(catOf(editing));
+    modeTouched = true;
+    if (SECTIONS[catOf(editing)].places.length) setPlace(editing.storage);
+    setMode(modeOf(editing), true);
+    setDate(modeOf(editing) === "stored" ? editing.storedOn : editing.expires);
+    $("fOpened").value = editing.openedOn || "";
+    $("fMemo").value = editing.memo || "";
+  } else {
+    $("saveBtn").textContent = "추가하기";
+    setVis("delBtn", false);
+    setFormSection(section);
+  }
+  setVis("formBack", true);
+  document.body.classList.add("locked");
+  if (!editing) setTimeout(() => $("fName").focus(), 60);
+}
+function closeForm() {
+  if ($("formBack").hidden) return;
+  setVis("formBack", false);
+  if (sheetLevel == null) document.body.classList.remove("locked");
+  editing = null;
+  if (formOpener && formOpener.focus) formOpener.focus();
+}
+let delArmed = false, delTimer = null;
+function disarmDelete() { delArmed = false; clearTimeout(delTimer); $("delBtn").classList.remove("confirm"); $("delBtn").textContent = "삭제"; }
+$("delBtn").addEventListener("click", () => {
+  if (!editing) return;
+  if (!delArmed) {
+    delArmed = true; $("delBtn").classList.add("confirm"); $("delBtn").textContent = "정말 삭제";
+    delTimer = setTimeout(disarmDelete, 3000);
+    return;
+  }
+  const x = editing; disarmDelete(); closeForm(); removeWithUndo(x);
+});
+$("fab").addEventListener("click", () => openForm(null));
+document.querySelectorAll("#kindSeg button").forEach((b) => b.addEventListener("click", () => {
+  if (formSection !== b.dataset.v) setFormSection(b.dataset.v, !!editing);
+}));
+$("formClose").addEventListener("click", closeForm);
+$("formBack").addEventListener("click", (e) => { if (e.target === $("formBack")) closeForm(); });
+addEventListener("keydown", (e) => { if (e.key === "Escape") closeForm(); });
+$("openedToday").addEventListener("click", () => { $("fOpened").value = addDays(0); });
+let qTimer = null;
+$("q").addEventListener("input", () => { clearTimeout(qTimer); qTimer = setTimeout(render, 120); });
+
 $("addForm").addEventListener("submit", (ev) => {
   ev.preventDefault();
   const name = $("fName").value.trim();
   const date = $("fDate").value;
+  const opened = $("fOpened").value;
   if (!me || !itemsCol) { showErr("먼저 로그인하세요."); return; }
   if (!name) { showErr("이름을 입력하세요."); $("fName").focus(); return; }
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) { showErr("날짜를 고르세요."); return; }
   if (mode === "stored" && daysLeft(date) > 0) { showErr("넣은 날짜는 오늘이나 그 전이어야 해요."); return; }
+  if (opened && daysLeft(opened) > 0) { showErr("개봉한 날은 오늘이나 그 전이어야 해요."); return; }
   setVis("err", false);
-  const item = { id: newId(), category: section, dateType: mode, name, storage: place, qty, status: "active", addedAt: Date.now(), addedByName: myName(), closedAt: null, closedByName: null };
-  if (mode === "stored") item.storedOn = date; else item.expires = date;
-  save(item).catch((e) => showErr("저장하지 못했어요 (" + e.code + ")"));
-  $("fName").value = ""; setQty(1);
-  modeTouched = false; mode = ""; setMode("expiry", false); setPlace(place);
-  $("fName").blur();
+  const fields = { category: formSection, name, storage: SECTIONS[formSection].places.length ? place : null, qty, dateType: mode, memo: $("fMemo").value.trim() || null, openedOn: opened || null };
+  if (mode === "stored") { fields.storedOn = date; fields.expires = null; } else { fields.expires = date; fields.storedOn = null; }
+
+  if (editing) {
+    const before = Object.assign({}, editing);
+    const after = Object.assign({}, editing, fields);
+    save(after).catch(fail);
+    closeForm();
+    toast(name + " 수정함", () => save(before));
+    return;
+  }
+  const item = Object.assign({ id: newId(), status: "active", addedAt: Date.now(), addedByName: myName(), closedAt: null, closedByName: null }, fields);
+  save(item).catch(fail);
+  toast((formSection !== section ? SECTIONS[formSection].label + "에 " : "") + name + " 추가함", () => remove(item.id));
+  // 연달아 넣기 편하게 창은 열어 두고 이름만 비움
+  resetFields();
+  $("fName").focus();
 });
 
 const tb = $("topbar");
