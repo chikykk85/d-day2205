@@ -124,6 +124,7 @@ body { margin: 0; padding-top: env(safe-area-inset-top, 0px); padding-bottom: en
 .fridgebar .btns { display: flex; gap: 6px; flex-wrap: wrap; }
 .by { font-family: var(--font-body); }
 .toast { font-size: 13px; color: var(--ok); margin: 0; }
+.who-btn[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 </style>
 </head>
 <body>
@@ -133,53 +134,22 @@ body { margin: 0; padding-top: env(safe-area-inset-top, 0px); padding-bottom: en
     <div class="today" id="today"></div>
   </header>
 
-  <div class="account">
-    <span class="who" id="who">로그인 상태 확인 중…</span>
-    <button class="primary" id="loginBtn" type="button" hidden>Google로 로그인</button>
-    <button class="ghost" id="logoutBtn" type="button" hidden>로그아웃</button>
+  <div class="account" id="account" hidden>
+    <span class="who" id="who"></span>
+    <button class="ghost" id="logoutBtn" type="button">로그아웃</button>
   </div>
 
-  <!-- 냉장고에 아직 들어가지 않았을 때 -->
-  <section class="panel" id="setup" hidden>
-    <h2>같이 쓸 냉장고를 정하세요</h2>
-    <div class="split">
-      <div>
-        <p>처음 쓰는 사람이라면 새 냉장고를 만들고, 초대 코드를 가족에게 보내세요.</p>
-        <label class="f">냉장고 이름<input id="newName" placeholder="예: 우리집 냉장고" autocomplete="off"></label>
-        <button class="primary" id="createBtn" type="button">새 냉장고 만들기</button>
-      </div>
-      <div>
-        <p>초대받았다면 받은 코드를 입력하세요.</p>
-        <label class="f">초대 코드<input id="joinCode" placeholder="예: K7P2XQ9M" autocomplete="off" autocapitalize="characters"></label>
-        <button class="ghost" id="joinBtn" type="button">코드로 참여하기</button>
-      </div>
+  <form class="panel" id="loginPanel" hidden novalidate>
+    <h2>누구세요?</h2>
+    <div class="row" role="radiogroup" aria-label="사용자 선택">
+      <button type="button" class="chip who-btn" data-who="jju" aria-pressed="true">쭈와와</button>
+      <button type="button" class="chip who-btn" data-who="ae" aria-pressed="false">애와와</button>
     </div>
-    <p class="err" id="setupErr" hidden></p>
-  </section>
-
-  <!-- 냉장고 정보와 초대 -->
-  <section class="panel" id="fridgeInfo" hidden>
-    <div class="fridgebar">
-      <span class="nm" id="fridgeName"></span>
-      <div class="btns">
-        <button class="ghost" id="inviteBtn" type="button">초대하기</button>
-        <button class="ghost" id="leaveBtn" type="button">나가기</button>
-      </div>
-    </div>
-    <div id="inviteBox" hidden>
-      <p>아래 코드나 링크를 함께 쓸 사람에게 보내세요. 받은 사람은 Google로 로그인하면 바로 들어옵니다.</p>
-      <div class="code" id="codeText"></div>
-      <div class="row">
-        <input id="linkText" readonly aria-label="초대 링크">
-        <button class="ghost" id="copyBtn" type="button">링크 복사</button>
-      </div>
-      <p class="toast" id="copied" hidden>복사했어요.</p>
-    </div>
-    <div id="leaveBox" hidden>
-      <p>이 냉장고에서 나가면 목록이 더 이상 보이지 않아요. 다른 사람들은 계속 쓸 수 있고, 초대 코드로 다시 들어올 수 있어요.</p>
-      <div class="row"><button class="primary" id="leaveYes" type="button">나가기</button><button class="ghost" id="leaveNo" type="button">취소</button></div>
-    </div>
-  </section>
+    <label class="f">비밀번호<input type="password" id="pw" inputmode="numeric" autocomplete="current-password" placeholder="숫자 4자리"></label>
+    <div><button class="primary" id="loginBtn" type="submit">들어가기</button></div>
+    <p class="err" id="loginErr" hidden></p>
+    <p>한 번 들어가면 이 기기에서는 다음부터 바로 열려요.</p>
+  </form>
 
   <div class="summary" role="group" aria-label="상태별 개수">
     <button class="sum bad" id="s-bad" data-f="bad" aria-pressed="false"><b id="n-bad">0</b><small>기한 지남</small></button>
@@ -215,7 +185,7 @@ body { margin: 0; padding-top: env(safe-area-inset-top, 0px); padding-bottom: en
     <button class="chip" data-s="done" aria-pressed="false">처리 기록</button>
   </div>
 
-  <p class="note" id="sampleNote" hidden>아래는 예시입니다. 냉장고에 첫 식품을 추가하면 사라집니다.</p>
+  <p class="note" id="sampleNote" hidden>아래는 예시입니다. 로그인하고 첫 식품을 추가하면 사라집니다.</p>
   <div class="list" id="list"></div>
 
   <section class="waste" aria-label="이번 달 기록">
@@ -242,8 +212,15 @@ const firebaseConfig = {
 // ============================================================
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { initializeFirestore, persistentLocalCache, collection, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { initializeFirestore, persistentLocalCache, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// 사용자 목록: Firebase Authentication에 만든 이메일과 화면에 보일 이름
+const USERS = {
+  jju: { name: "쭈와와", email: "jju@d-day2205.app" },
+  ae:  { name: "애와와", email: "ae@d-day2205.app" },
+};
+const PW_SUFFIX = "dday"; // Firebase 비밀번호는 6자 이상이어야 해서 입력값 뒤에 붙임 (0708 → 0708dday)
 
 const DAY = 86400000;
 const $ = (id) => document.getElementById(id);
@@ -269,127 +246,44 @@ const SAMPLES = [
   { id: "x4", name: "냉동 만두", storage: "냉동", expires: addDays(80), qty: 2, status: "active", addedByName: "예시" },
 ];
 
-// 초대 링크(?join=코드)로 들어온 경우 코드를 기억해 둡니다.
-const params = new URLSearchParams(location.search);
-let pendingJoin = (params.get("join") || "").trim().toUpperCase();
-if (pendingJoin) { try { sessionStorage.setItem("pendingJoin", pendingJoin); } catch (e) {} }
-else { try { pendingJoin = sessionStorage.getItem("pendingJoin") || ""; } catch (e) {} }
-
 let items = [];
 let filterLevel = null;
 let filterStorage = "all";
-let me = null;          // 로그인한 사용자
-let fridgeId = null;    // 들어가 있는 냉장고 (= 초대 코드)
+let me = null;
 let itemsCol = null;
-let unsubItems = null, unsubFridge = null, unsubUser = null;
+let unsubItems = null;
+let pick = "jju";
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+const auth = getAuth(app); // 로그인 상태는 이 기기에 저장되어 다음에 자동으로 유지됩니다.
 const db = initializeFirestore(app, { localCache: persistentLocalCache() });
 
-const myName = () => (me && (me.displayName || (me.email || "").split("@")[0])) || "누군가";
+const nameOf = (email) => (Object.values(USERS).find((u) => u.email === email) || {}).name || (email || "").split("@")[0];
+const myName = () => (me ? nameOf(me.email) : "누군가");
 const setVis = (id, on) => { $(id).hidden = !on; };
 
-function stopListening() {
-  [unsubItems, unsubFridge, unsubUser].forEach((u) => u && u());
-  unsubItems = unsubFridge = unsubUser = null;
-}
-
 onAuthStateChanged(auth, (user) => {
-  stopListening();
-  me = user; fridgeId = null; itemsCol = null; items = [];
+  if (unsubItems) { unsubItems(); unsubItems = null; }
+  me = user; items = []; itemsCol = null;
   if (!user) {
-    $("who").textContent = "Google로 로그인하면 가족과 같은 냉장고를 함께 관리할 수 있어요.";
-    setVis("loginBtn", true); setVis("logoutBtn", false);
-    setVis("setup", false); setVis("fridgeInfo", false);
-    $("saveInfo").textContent = pendingJoin ? "초대를 받았어요. 로그인하면 바로 참여합니다." : "로그인 전에는 예시만 보여요.";
+    setVis("account", false); setVis("loginPanel", true);
+    $("saveInfo").textContent = "로그인 전에는 예시만 보여요.";
     render();
     return;
   }
+  setVis("loginPanel", false); setVis("account", true);
   $("who").textContent = "";
   const b = document.createElement("b"); b.textContent = myName();
-  $("who").append(b, " 님으로 로그인함");
-  setVis("loginBtn", false); setVis("logoutBtn", true);
-  // 내가 어느 냉장고에 들어가 있는지 (users/{uid}.fridgeId) 지켜봅니다.
-  unsubUser = onSnapshot(doc(db, "users", user.uid), (snap) => {
-    const fid = snap.exists() ? snap.data().fridgeId : null;
-    if (fid !== fridgeId) openFridge(fid);
-  }, (e) => showSetupErr("내 정보를 불러오지 못했어요: " + e.code));
-});
-
-async function openFridge(fid) {
-  if (unsubItems) unsubItems(); if (unsubFridge) unsubFridge();
-  unsubItems = unsubFridge = null;
-  fridgeId = fid || null; items = []; itemsCol = null;
-  if (!fridgeId) {
-    setVis("fridgeInfo", false);
-    if (pendingJoin) { $("joinCode").value = pendingJoin; joinFridge(pendingJoin); }
-    else setVis("setup", true);
-    $("saveInfo").textContent = "";
-    render();
-    return;
-  }
-  setVis("setup", false); setVis("fridgeInfo", true);
-  unsubFridge = onSnapshot(doc(db, "fridges", fridgeId), (snap) => {
-    if (!snap.exists()) { $("fridgeName").textContent = "냉장고를 찾을 수 없어요"; return; }
-    const d = snap.data();
-    $("fridgeName").textContent = d.name + " · " + (d.members || []).length + "명";
-    $("codeText").textContent = fridgeId;
-    $("linkText").value = location.origin + location.pathname + "?join=" + fridgeId;
-  }, () => { $("fridgeName").textContent = "이 냉장고에 접근할 수 없어요"; });
-  itemsCol = collection(db, "fridges", fridgeId, "items");
+  $("who").append(b, " 님 · 우리집 냉장고");
+  itemsCol = collection(db, "fridges", "home", "items");
   unsubItems = onSnapshot(itemsCol, (snap) => {
     items = snap.docs.map((d) => Object.assign({ id: d.id }, d.data()));
     render();
   }, (e) => { $("saveInfo").textContent = "목록을 불러오지 못했어요: " + e.code; });
-  $("saveInfo").textContent = "이 냉장고의 모든 사람에게 실시간으로 함께 보여요.";
+  $("saveInfo").textContent = "쭈와와와 애와와에게 실시간으로 함께 보여요.";
   render();
-}
+});
 
-// 초대 코드: 헷갈리는 글자(0, O, 1, I, L)를 뺀 8자리
-function makeCode() {
-  const A = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
-  const r = crypto.getRandomValues(new Uint32Array(8));
-  return Array.from(r, (n) => A[n % A.length]).join("");
-}
-
-async function createFridge() {
-  const name = $("newName").value.trim() || "우리집 냉장고";
-  const code = makeCode();
-  try {
-    await setDoc(doc(db, "fridges", code), { name, members: [me.uid], createdAt: Date.now() });
-    await setDoc(doc(db, "users", me.uid), { fridgeId: code });
-    setVis("inviteBox", true);
-  } catch (e) { showSetupErr("냉장고를 만들지 못했어요: " + e.code); }
-}
-
-async function joinFridge(raw) {
-  const code = (raw || "").replace(/\s/g, "").toUpperCase();
-  if (!code) { showSetupErr("초대 코드를 입력하세요."); return; }
-  try {
-    const snap = await getDoc(doc(db, "fridges", code));
-    if (!snap.exists()) { showSetupErr("이 코드의 냉장고가 없어요. 코드를 다시 확인하세요."); pendingJoin = ""; setVis("setup", true); clearPending(); return; }
-    await updateDoc(doc(db, "fridges", code), { members: arrayUnion(me.uid) });
-    await setDoc(doc(db, "users", me.uid), { fridgeId: code });
-    clearPending();
-  } catch (e) { showSetupErr("참여하지 못했어요: " + e.code); setVis("setup", true); clearPending(); }
-}
-function clearPending() {
-  pendingJoin = "";
-  try { sessionStorage.removeItem("pendingJoin"); } catch (e) {}
-  if (location.search) history.replaceState(null, "", location.pathname);
-}
-
-async function leaveFridge() {
-  const fid = fridgeId;
-  try {
-    await setDoc(doc(db, "users", me.uid), { fridgeId: null });
-    await updateDoc(doc(db, "fridges", fid), { members: arrayRemove(me.uid) });
-  } catch (e) { $("saveInfo").textContent = "나가지 못했어요: " + e.code; }
-  setVis("leaveBox", false);
-}
-
-function showSetupErr(msg) { $("setupErr").textContent = msg; setVis("setupErr", true); }
 function showErr(msg) { $("err").textContent = msg; setVis("err", true); }
 
 const save = (it) => { const body = Object.assign({}, it); delete body.id; return setDoc(doc(itemsCol, it.id), body); };
@@ -475,7 +369,7 @@ function render() {
 
   const now = new Date();
   const mStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
-  $("wasteTitle").textContent = (now.getMonth() + 1) + "월 기록 (냉장고 전체)";
+  $("wasteTitle").textContent = (now.getMonth() + 1) + "월 기록 ";
   const closed = items.filter((x) => x.status !== "active" && (x.closedAt || 0) >= mStart);
   const e = closed.filter((x) => x.status === "eaten").reduce((s, x) => s + (x.qty || 1), 0);
   const tt = closed.filter((x) => x.status === "tossed").reduce((s, x) => s + (x.qty || 1), 0);
@@ -495,25 +389,24 @@ function btn(label, cls, fn) {
 function close(x, status) { save(Object.assign({}, x, { status, closedAt: Date.now(), closedByName: myName() })); }
 
 // ---- 이벤트 ----
-$("loginBtn").addEventListener("click", async () => {
-  const provider = new GoogleAuthProvider();
-  try { await signInWithPopup(auth, provider); }
+document.querySelectorAll(".who-btn").forEach((w) => w.addEventListener("click", () => {
+  pick = w.dataset.who;
+  document.querySelectorAll(".who-btn").forEach((x) => x.setAttribute("aria-pressed", String(x === w)));
+  $("pw").focus();
+}));
+$("loginPanel").addEventListener("submit", async (ev) => {
+  ev.preventDefault();
+  const pw = $("pw").value.trim();
+  if (!pw) { $("loginErr").textContent = "비밀번호를 입력하세요."; setVis("loginErr", true); return; }
+  setVis("loginErr", false);
+  try { await signInWithEmailAndPassword(auth, USERS[pick].email, pw + PW_SUFFIX); $("pw").value = ""; }
   catch (e) {
-    if (e.code === "auth/popup-blocked" || e.code === "auth/operation-not-supported-in-environment") signInWithRedirect(auth, provider);
-    else if (e.code !== "auth/popup-closed-by-user" && e.code !== "auth/cancelled-popup-request") $("saveInfo").textContent = "로그인하지 못했어요: " + e.code;
+    const wrong = ["auth/invalid-credential", "auth/wrong-password", "auth/user-not-found", "auth/invalid-login-credentials"].includes(e.code);
+    $("loginErr").textContent = wrong ? "비밀번호가 맞지 않아요." : e.code === "auth/too-many-requests" ? "여러 번 틀려서 잠시 막혔어요. 몇 분 뒤 다시 해 보세요." : "들어가지 못했어요: " + e.code;
+    setVis("loginErr", true);
   }
 });
 $("logoutBtn").addEventListener("click", () => signOut(auth));
-$("createBtn").addEventListener("click", () => { setVis("setupErr", false); createFridge(); });
-$("joinBtn").addEventListener("click", () => { setVis("setupErr", false); joinFridge($("joinCode").value); });
-$("inviteBtn").addEventListener("click", () => { setVis("leaveBox", false); setVis("inviteBox", $("inviteBox").hidden); });
-$("leaveBtn").addEventListener("click", () => { setVis("inviteBox", false); setVis("leaveBox", true); });
-$("leaveNo").addEventListener("click", () => setVis("leaveBox", false));
-$("leaveYes").addEventListener("click", leaveFridge);
-$("copyBtn").addEventListener("click", async () => {
-  try { await navigator.clipboard.writeText($("linkText").value); setVis("copied", true); setTimeout(() => setVis("copied", false), 2000); }
-  catch (e) { $("linkText").select(); }
-});
 
 document.querySelectorAll(".quick .chip").forEach((c) => c.addEventListener("click", () => { $("fDate").value = addDays(Number(c.dataset.d)); }));
 document.querySelectorAll(".sum").forEach((s) => s.addEventListener("click", () => {
@@ -535,9 +428,8 @@ $("addForm").addEventListener("submit", (ev) => {
   ev.preventDefault();
   const name = $("fName").value.trim();
   const date = $("fDate").value;
-  if (!me) { showErr("먼저 Google로 로그인하세요."); return; }
-  if (!itemsCol) { showErr("먼저 냉장고를 만들거나 초대 코드로 참여하세요."); return; }
-  if (!name) { showErr("식품 이름을 입력하세요."); $("fName").focus(); return; }
+  if (!me || !itemsCol) { showErr("먼저 로그인하세요."); return; }
+    if (!name) { showErr("식품 이름을 입력하세요."); $("fName").focus(); return; }
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) { showErr("기한 날짜를 고르세요. 아래 빠른 버튼을 써도 됩니다."); return; }
   setVis("err", false);
   const item = { id: newId(), name, storage: $("fStorage").value, expires: date, qty: Math.max(1, parseInt($("fQty").value, 10) || 1), status: "active", addedAt: Date.now(), addedByName: myName(), closedAt: null, closedByName: null };
