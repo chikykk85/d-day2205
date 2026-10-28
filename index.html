@@ -419,11 +419,11 @@ main { padding-bottom: 110px !important; }
           <button type="button" data-v="med" aria-pressed="false">의약품</button>
         </div>
       </div>
+      <div class="field" id="placeField"><span>보관 위치</span>
+        <div class="seg" id="storageSeg" role="group" aria-label="보관 위치"></div>
+      </div>
       <label class="field"><span>이름</span><input type="text" id="fName" placeholder="예: 우유 1L" autocomplete="off" enterkeyhint="done"></label>
       <div class="two">
-        <div class="field" id="placeField"><span>보관 위치</span>
-          <div class="seg" id="storageSeg" role="group" aria-label="보관 위치"></div>
-        </div>
         <div class="field"><span>수량</span>
           <div class="stepper"><button type="button" id="qMinus" aria-label="수량 줄이기">−</button><output id="qOut">1</output><button type="button" id="qPlus" aria-label="수량 늘리기">+</button></div>
         </div>
@@ -1055,10 +1055,8 @@ $("addForm").addEventListener("submit", (ev) => {
   }
   const item = Object.assign({ id: newId(), status: "active", addedAt: Date.now(), addedByName: myName(), closedAt: null, closedByName: null }, fields);
   save(item).catch(fail);
+  closeForm();
   toast((formSection !== section ? SECTIONS[formSection].label + "에 " : "") + name + " 추가함", () => remove(item.id));
-  // 연달아 넣기 편하게 창은 열어 두고 이름만 비움
-  resetFields();
-  $("fName").focus();
 });
 
 const tb = $("topbar");
