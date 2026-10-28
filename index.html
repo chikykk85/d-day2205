@@ -51,16 +51,21 @@ button { font: inherit; color: inherit; }
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); background: var(--bg); z-index: 20; }
 .topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: saturate(1.4) blur(14px); -webkit-backdrop-filter: saturate(1.4) blur(14px); border-bottom: 1px solid transparent; }
 .topbar.scrolled { border-bottom-color: var(--line); }
-.topbar-in { max-width: 680px; margin: 0 auto; padding-block: 12px; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
-.logo { width: 46px; height: 46px; flex: none; display: block; }
+.topbar-in { max-width: 680px; margin: 0 auto; padding-block: 12px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.logo { width: clamp(36px, 11vw, 44px); height: clamp(36px, 11vw, 44px); flex: none; display: block; }
 .wordmark { display: grid; min-width: 0; }
 .wordmark small { font-size: 23px; color: var(--ink-2); font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; white-space: nowrap; }
 .brand h1 { margin: 0; font-size: 26px; font-weight: 900; letter-spacing: -0.045em; line-height: 1.15; display: flex; align-items: baseline; gap: 5px; white-space: nowrap; }
+.brand h1 { width: max-content; }
 .brand h1 .home { color: var(--ink); }
 .brand h1 .dday-mark { color: var(--accent); display: inline-flex; align-items: baseline; }
 .brand h1 .dday-mark .dash { display: inline-block; width: 9px; height: 4px; border-radius: 2px; background: var(--bad); margin: 0 2px; transform: translateY(-7px); }
-.me { display: flex; align-items: center; gap: 8px; }
+.side { display: grid; justify-items: end; gap: 6px; flex: none; }
+.me { display: flex; align-items: center; gap: 5px; font-size: 13px; color: var(--muted); }
+.me .avatar { width: 22px; height: 22px; font-size: 11px; }
+.me-name { font-weight: 700; color: var(--ink-2); }
+.me .textbtn { font-size: 13px; padding: 2px 2px 2px 4px; text-decoration: underline; text-underline-offset: 2px; }
 .avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; font-weight: 800; font-size: 16px; }
 .textbtn { background: none; border: 0; color: var(--muted); font-size: 15px; font-weight: 600; padding: 8px 4px; cursor: pointer; }
 
@@ -121,9 +126,9 @@ input::placeholder { color: var(--muted); }
 .err { margin: 0; color: var(--bad); font-size: 15px; font-weight: 600; }
 
 /* 섹션 전환 */
-.sections { display: grid; grid-template-columns: 1fr 1fr; background: var(--surface); border-radius: 16px; padding: 5px; gap: 5px; box-shadow: var(--shadow); border: 1px solid var(--line); }
+.sections { display: grid; grid-template-columns: auto auto; background: var(--surface); border-radius: 14px; padding: 4px; gap: 3px; box-shadow: var(--shadow); border: 1px solid var(--line); }
 @media (prefers-color-scheme: light) { .sections { border-color: transparent; } }
-.sections button { height: 50px; border: 0; border-radius: 12px; background: none; font-size: 18px; font-weight: 800; color: var(--muted); cursor: pointer; }
+.sections button { height: 40px; padding: 0 9px; border: 0; border-radius: 10px; background: none; font-size: 15px; font-weight: 800; white-space: nowrap; color: var(--muted); cursor: pointer; }
 .sections button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
 .legend em { font-style: normal; }
 .hint { font-size: 14px; color: var(--muted); font-weight: 500; }
@@ -226,9 +231,16 @@ footer { text-align: center; font-size: 14px; color: var(--muted); }
       </svg>
       <div class="wordmark"><small id="today"></small><h1><span class="home">우리집</span><span class="dday-mark">D<span class="dash"></span>day</span></h1></div>
     </div>
-    <div class="me" id="meBox" hidden>
-      <div class="avatar" id="avatar" aria-hidden="true"></div>
-      <button class="textbtn" id="logoutBtn" type="button">로그아웃</button>
+    <div class="side">
+      <div class="sections" role="group" aria-label="섹션">
+        <button type="button" data-c="food" aria-pressed="true">식품</button>
+        <button type="button" data-c="home" aria-pressed="false">생활용품</button>
+      </div>
+      <div class="me" id="meBox" hidden>
+        <span class="avatar" id="avatar" aria-hidden="true"></span>
+        <span class="me-name" id="meName"></span>
+        <button class="textbtn" id="logoutBtn" type="button">로그아웃</button>
+      </div>
     </div>
   </div>
 </header>
@@ -247,11 +259,6 @@ footer { text-align: center; font-size: 14px; color: var(--muted); }
     <p>한 번 들어가면 이 기기에서는 다음부터 바로 열려요.</p>
   </form>
 
-  <!-- 섹션 -->
-  <div class="sections" role="group" aria-label="섹션">
-    <button type="button" data-c="food" aria-pressed="true">식품</button>
-    <button type="button" data-c="home" aria-pressed="false">생활용품</button>
-  </div>
 
   <!-- 요약 -->
   <div class="stats" role="group" aria-label="상태별 개수">
@@ -366,6 +373,13 @@ $("today").textContent = (t.getMonth() + 1) + "월 " + t.getDate() + "일 (" + W
 // 날짜 줄을 제목(우리집 D-day)과 같은 폭으로 맞춤
 function fitDate() {
   const d = $("today"), h = document.querySelector(".brand h1");
+  // 제목 크기: 오른쪽 섹션 버튼과 겹치지 않을 만큼 (최대 26px)
+  const bar = document.querySelector(".topbar-in"), side = document.querySelector(".side"), logo = document.querySelector(".logo");
+  const cs = getComputedStyle(bar);
+  const room = bar.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight) - side.offsetWidth - logo.getBoundingClientRect().width - 10 - 14;
+  h.style.fontSize = "26px";
+  const hw = h.scrollWidth;
+  if (hw > room) h.style.fontSize = Math.max(16, 26 * room / hw).toFixed(1) + "px";
   const range = document.createRange(); range.selectNodeContents(d);
   d.style.fontSize = "23px";
   const w = range.getBoundingClientRect().width, target = h.getBoundingClientRect().width;
@@ -373,6 +387,7 @@ function fitDate() {
 }
 fitDate();
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitDate);
+addEventListener("resize", fitDate);
 
 // ---- 섹션 설정 ----
 const SECTIONS = {
@@ -432,7 +447,7 @@ onAuthStateChanged(auth, (user) => {
   }
   setVis("loginPanel", false); setVis("meBox", true);
   $("avatar").textContent = myName().slice(0, 1);
-  $("avatar").title = myName();
+  $("meName").textContent = myName();
   itemsCol = collection(db, "fridges", "home", "items");
   unsubItems = onSnapshot(itemsCol, (snap) => {
     items = snap.docs.map((d) => Object.assign({ id: d.id }, d.data()));
