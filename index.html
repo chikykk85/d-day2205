@@ -149,7 +149,7 @@ input::placeholder { color: var(--muted); }
 .sheet-close { width: 40px; height: 40px; border-radius: 50%; border: 0; background: var(--surface-2); font-size: 22px; cursor: pointer; color: var(--ink-2); }
 .sheet-body { overflow-y: auto; padding: 4px 20px 24px; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); display: grid; gap: 10px; align-content: start; overscroll-behavior: contain; }
 .sheet-sub { margin: -6px 0 4px; font-size: 15px; color: var(--muted); }
-@media (min-width: 700px) { .sheet-back { align-items: center; } .sheet { border-radius: 24px; max-height: 80vh; } }
+@media (min-width: 600px), (min-width: 480px) and (min-aspect-ratio: 3/5) { .sheet-back { align-items: center; } .sheet { border-radius: 24px; max-height: 80vh; } }
 @media (prefers-reduced-motion: no-preference) {
   .sheet-back:not([hidden]) { animation: fade .18s ease-out; }
   .sheet-back:not([hidden]) .sheet { animation: rise .24s cubic-bezier(.2,.8,.2,1); }
@@ -244,7 +244,7 @@ main { padding-bottom: 110px !important; }
 .act.del { color: var(--muted); }
 .act.del.confirm { background: var(--bad); border-color: var(--bad); color: #fff; }
 .act.undo { color: var(--accent); grid-column: 1 / -1; }
-@media (min-width: 560px) and (max-width: 699px) {
+@media (min-width: 560px) and (max-width: 599px) and (max-aspect-ratio: 3/5) {
   .item { grid-template-columns: 72px 1fr auto; }
   .acts { grid-column: auto; grid-template-columns: auto auto auto; }
   .act.undo { grid-column: auto; }
@@ -254,8 +254,9 @@ main { padding-bottom: 110px !important; }
 .month { order: 1; }
 .foot { order: 2; }
 
-/* ===== 태블릿 세로: 더 넓게, 카드 2열 ===== */
-@media (min-width: 700px) {
+/* ===== 태블릿·폴드 펼친 화면: 더 넓게, 카드 2열 ===== */
+/* 폭 600px 이상이거나, 폭 480px 이상이면서 정사각형에 가까운 화면(폴드 내부 화면) */
+@media (min-width: 600px), (min-width: 480px) and (min-aspect-ratio: 3/5) {
   .topbar-in { max-width: 980px; padding-left: max(28px, env(safe-area-inset-left, 0px)); padding-right: max(28px, env(safe-area-inset-right, 0px)); }
   main { max-width: 980px; padding-left: max(28px, env(safe-area-inset-left, 0px)); padding-right: max(28px, env(safe-area-inset-right, 0px)); }
   .group { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
@@ -271,8 +272,22 @@ main { padding-bottom: 110px !important; }
   .item { padding: 16px; }
 }
 
+@media (min-width: 480px) and (max-width: 679px) and (min-aspect-ratio: 3/5) {
+  .topbar-in, main { padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px)); }
+  .group { gap: 10px; }
+  .item { grid-template-columns: 58px 1fr; gap: 10px; padding: 12px; }
+  .dday { height: 58px; border-radius: 12px; }
+  .dday b { font-size: 19px; } .dday b.long { font-size: 16px; } .dday b.xlong { font-size: 13px; }
+  .name { font-size: 17px; }
+  .meta { font-size: 14px; }
+  .acts { gap: 6px; }
+  .act { height: 42px; font-size: 15px; padding: 0 8px; }
+  .sections button { padding: 0 12px; font-size: 16px; height: 44px; }
+  .stat b { font-size: 34px; }
+}
+
 /* ===== 태블릿 가로: 왼쪽 요약 패널 + 오른쪽 상태별 보드 ===== */
-@media (min-width: 900px) and (orientation: landscape) {
+@media (min-width: 900px) and (min-height: 600px) and (orientation: landscape) {
   .topbar-in, main { max-width: 1440px; }
   main { grid-template-columns: 330px minmax(0, 1fr); column-gap: 28px; align-items: start; }
   #loginPanel { grid-column: 1 / -1; max-width: 480px; justify-self: center; width: 100%; }
