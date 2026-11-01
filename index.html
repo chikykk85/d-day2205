@@ -134,6 +134,11 @@ input::placeholder { color: var(--muted); }
 .sections button { height: 42px; padding: 0 9px; border: 0; border-radius: 10px; background: none; font-size: 15px; font-weight: 800; white-space: nowrap; color: var(--muted); cursor: pointer; }
 @media (max-width: 400px) { .sections button { padding: 0 7px; font-size: 14px; height: 40px; } .sections { padding: 3px; gap: 2px; } }
 .sections button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.sections button { position: relative; }
+.badge { position: absolute; top: -7px; right: -5px; min-width: 21px; height: 21px; padding: 0 6px; border-radius: 11px; background: var(--bad); color: var(--bg); font-size: 12px; font-weight: 800; line-height: 21px; text-align: center; box-shadow: 0 0 0 2px var(--surface); font-variant-numeric: tabular-nums; pointer-events: none; }
+.badge.dot { min-width: 11px; width: 11px; height: 11px; padding: 0; top: -3px; right: -2px; background: var(--warn); }
+@media (prefers-reduced-motion: no-preference) { .badge:not(.dot):not([hidden]) { animation: badgePop .3s cubic-bezier(.3,1.6,.5,1); } }
+@keyframes badgePop { from { transform: scale(.4); } }
 .legend em { font-style: normal; }
 .hint { font-size: 14px; color: var(--muted); font-weight: 500; }
 .two-seg button { font-size: 16px; }
@@ -347,9 +352,9 @@ main { padding-bottom: 110px !important; }
       <div class="wordmark"><small id="today"></small><h1><span class="home">우리집</span><span class="dday-mark">D<span class="dash"></span>day</span></h1></div>
     </div>
     <div class="sections" role="group" aria-label="섹션">
-      <button type="button" data-c="food" aria-pressed="true">식품</button>
-      <button type="button" data-c="home" aria-pressed="false">생활용품</button>
-      <button type="button" data-c="med" aria-pressed="false">의약품</button>
+      <button type="button" data-c="food" aria-pressed="true">식품<span class="badge" hidden></span></button>
+      <button type="button" data-c="home" aria-pressed="false">생활용품<span class="badge" hidden></span></button>
+      <button type="button" data-c="med" aria-pressed="false">의약품<span class="badge" hidden></span></button>
     </div>
   </div>
 </header>
@@ -817,7 +822,29 @@ function itemCard(x, usingSamples) {
   return card;
 }
 
+// 섹션 탭 표시: 기한 지난 항목 수(빨간 숫자), 없으면 3일 이내 항목이 있을 때 주황 점
+function updateBadges() {
+  document.querySelectorAll(".sections button").forEach((b) => {
+    const badge = b.querySelector(".badge");
+    const sec = b.dataset.c;
+    const active = itemsCol ? items.filter((x) => catOf(x) === sec && x.status === "active" && modeOf(x) === "expiry" && x.expires) : [];
+    const over = active.filter((x) => daysLeft(x.expires) < 0).length;
+    const soon = active.filter((x) => { const n = daysLeft(x.expires); return n >= 0 && n <= 3; }).length;
+    const label = SECTIONS[sec].label;
+    if (over) {
+      badge.className = "badge"; badge.textContent = over > 99 ? "99+" : over; badge.hidden = false;
+      b.setAttribute("aria-label", label + ", 기한 지난 항목 " + over + "개");
+    } else if (soon) {
+      badge.className = "badge dot"; badge.textContent = ""; badge.hidden = false;
+      b.setAttribute("aria-label", label + ", 3일 이내 항목 " + soon + "개");
+    } else {
+      badge.hidden = true; b.removeAttribute("aria-label");
+    }
+  });
+}
+
 function render() {
+  updateBadges();
   const S = SECTIONS[section];
   const mine = items.filter((x) => catOf(x) === section);
   const usingSamples = !itemsCol || mine.length === 0;
